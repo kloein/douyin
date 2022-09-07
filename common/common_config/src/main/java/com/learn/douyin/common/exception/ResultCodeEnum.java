@@ -7,8 +7,10 @@ import lombok.Getter;
 public enum ResultCodeEnum {
     USERNAME_HAS_EXIST(201,"用户名已存在"),
     REGISTER_PARAM_ERROR(202,"用户名或密码错误"),
-    USER_NOT_EXIST(203,"用户名不存在"),
+    USER_NOT_EXIST(203,"查无此用户"),
     PASSWORD_ERROR(204,"登录密码错误"),
+    PARAM_MISSING(205,"参数不足"),
+    TOKEN_ERROR(206,"token检验错误")
     ;
 
     private Integer code;

@@ -10,7 +10,10 @@ import com.learn.douyin.user.mapper.UserMapper;
 import com.learn.douyin.user.service.UserService;
 import com.learn.model.response.LoginResponse;
 import com.learn.model.response.RegisterResponse;
+import com.learn.model.response.UserMsgResponse;
 import com.learn.model.user.User;
+import com.learn.model.user.UserMsg;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -66,5 +69,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         long userId = user.getId();
         String token = TokenUtil.createToken(userId, username);
         return LoginResponse.ok(userId, token);
+    }
+
+    @Override
+    public UserMsgResponse getUserMsg(Long userId, String token) {
+        //1、检验参数
+        if (userId == null || token == null) {
+            throw new DouyinException(ResultCodeEnum.PARAM_MISSING);
+        }
+        //2、检验token
+        if (!TokenUtil.verify(token)) {
+            throw new DouyinException(ResultCodeEnum.TOKEN_ERROR);
+        }
+        //3、查询用户基础信息
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("id", userId);
+        User user = baseMapper.selectOne(userQueryWrapper);
+        if (user == null) {
+            throw new DouyinException(ResultCodeEnum.USER_NOT_EXIST);
+        }
+        //4、TODO 查询关注信息
+
+        //5、构造返回值
+        UserMsg userMsg=new UserMsg();
+        userMsg.setId(userId);
+        userMsg.setUsername(user.getUsername());
+        userMsg.setFollowCount(0L);
+        userMsg.setFollowerCount(0L);
+        userMsg.setFollow(false);
+        return UserMsgResponse.ok(userMsg);
     }
 }

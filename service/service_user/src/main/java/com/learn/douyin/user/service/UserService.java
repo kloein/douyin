@@ -3,6 +3,7 @@ package com.learn.douyin.user.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.learn.model.response.LoginResponse;
 import com.learn.model.response.RegisterResponse;
+import com.learn.model.response.UserMsgResponse;
 import com.learn.model.user.User;
 
 public interface UserService extends IService<User> {
@@ -21,4 +22,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     LoginResponse loginUser(String username, String password);
+
+    /**
+     * 获取用户信息详情
+     * @param userId
+     * @param token
+     * @return
+     */
+    UserMsgResponse getUserMsg(Long userId, String token);
 }

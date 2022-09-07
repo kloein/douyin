@@ -14,7 +14,7 @@ public class TokenUtil {
 
     //根据参数生成token
     public static String createToken(Long userId, String username) {
-        String token = Jwts.builder()
+            String token = Jwts.builder()
                 .setSubject("DOUYIN-USER")
                 .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .claim("userId", userId)
@@ -23,6 +23,16 @@ public class TokenUtil {
                 .compressWith(CompressionCodecs.GZIP)
                 .compact();
         return token;
+    }
+
+    //检验token,正确返回true
+    public static boolean verify(String token){
+        try {
+            Jwts.parser().setSigningKey(tokenSignKey).parse(token);
+            return true;
+        }catch (Exception e){
+            return  false;
+        }
     }
 
     //根据token字符串得到用户id
