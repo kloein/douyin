@@ -2,12 +2,10 @@ package com.learn.douyin.video.controller;
 
 import com.learn.douyin.video.service.VideoService;
 import com.learn.model.response.PublishActionResponse;
+import com.learn.model.response.PublishListResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -23,6 +21,15 @@ public class PublishController {
                                         @RequestParam("title") String title
     ) {
         PublishActionResponse response=videoService.saveVideo(file,token,title);
+        return response;
+    }
+
+    @ApiOperation("发布列表")
+    @GetMapping("list")
+    public PublishListResponse list(@RequestParam("token") String token,
+                                    @RequestParam("user_id") Long userId
+                                    ) {
+        PublishListResponse response=videoService.getUserVideos(token,userId);
         return response;
     }
 }

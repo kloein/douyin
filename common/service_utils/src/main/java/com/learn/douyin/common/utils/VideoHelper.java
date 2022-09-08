@@ -1,24 +1,21 @@
-package com.learn.douyin.video.utils;
+package com.learn.douyin.common.utils;
 
-
-import java.awt.image.BufferedImage;
-import java.io.*;
-
-import javax.imageio.ImageIO;
 
 import com.learn.model.video.MultipartFileDto;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.aspectj.util.FileUtil;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber.Exception;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 
 public class VideoHelper {
     /**
@@ -27,7 +24,7 @@ public class VideoHelper {
      * @throws Exception
      * @throws IOException
      */
-    public static MultipartFileDto fetchFrame(MultipartFile multipartFile)
+    public static MultipartFile fetchFrame(MultipartFile multipartFile)
             throws Exception, IOException {
         // 获取文件名
         String fileName = multipartFile.getOriginalFilename();
@@ -61,7 +58,7 @@ public class VideoHelper {
                 src =converter.convert(f);
                 f =converter.convert(rotate(src, Integer.valueOf(rotate)));
             }
-            MultipartFileDto image = doExecuteFrame(f);
+            MultipartFile image = doExecuteFrame(f);
             return image;
         }
         return null;
@@ -76,11 +73,11 @@ public class VideoHelper {
     }
 
 
-    public static MultipartFileDto doExecuteFrame(Frame f) {
+    public static MultipartFile doExecuteFrame(Frame f) {
         if (null ==f ||null ==f.image) {
             return null;
         }
-        MultipartFileDto multipartFile=null;
+        MultipartFile multipartFile=null;
         try {
             Java2DFrameConverter converter =new Java2DFrameConverter();
             BufferedImage bi =converter.getBufferedImage(f);
@@ -88,6 +85,7 @@ public class VideoHelper {
 
             ImageIO.write(bi, "jpg", outputStream);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
             multipartFile=new MultipartFileDto("image", "image.jpg", "text/plain", inputStream);
         } catch (IOException e) {
             e.printStackTrace();

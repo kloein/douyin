@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.learn.model.response.LoginResponse;
 import com.learn.model.response.RegisterResponse;
 import com.learn.model.response.UserMsgResponse;
-import com.learn.model.user.User;
+import com.learn.model.pojo.User;
 
 public interface UserService extends IService<User> {
     /**

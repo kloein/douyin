@@ -1,4 +1,4 @@
-package com.learn.model.video;
+package com.learn.model.pojo;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

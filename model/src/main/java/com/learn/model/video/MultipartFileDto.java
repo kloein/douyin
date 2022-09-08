@@ -1,5 +1,6 @@
 package com.learn.model.video;
 
+import lombok.Data;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -7,15 +8,19 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
+@Data
 public class MultipartFileDto implements MultipartFile {
-    private final String name;
+    public MultipartFileDto() {
+        super();
+    }
+
+    private String name;
 
     private String originalFilename;
 
     private String contentType;
 
-    private final byte[] content;
+    private byte[] content;
 
     /**
      * Create a new MultipartFileDto with the given content.

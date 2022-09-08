@@ -1,6 +1,6 @@
 package com.learn.douyin.user;
 
-import com.learn.model.user.User;
+import com.learn.model.pojo.User;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;

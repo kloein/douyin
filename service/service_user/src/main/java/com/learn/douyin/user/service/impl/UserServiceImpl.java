@@ -11,9 +11,8 @@ import com.learn.douyin.user.service.UserService;
 import com.learn.model.response.LoginResponse;
 import com.learn.model.response.RegisterResponse;
 import com.learn.model.response.UserMsgResponse;
-import com.learn.model.user.User;
+import com.learn.model.pojo.User;
 import com.learn.model.user.UserMsg;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

@@ -1,4 +1,4 @@
-package com.learn.model.user;
+package com.learn.model.pojo;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
