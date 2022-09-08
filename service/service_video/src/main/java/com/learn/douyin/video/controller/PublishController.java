@@ -16,11 +16,11 @@ public class PublishController {
 
     @ApiOperation("视频投稿")
     @PostMapping("action")
-    public PublishActionResponse action(MultipartFile file,
+    public PublishActionResponse action(MultipartFile data,
                                         @RequestParam("token") String token,
                                         @RequestParam("title") String title
     ) {
-        PublishActionResponse response=videoService.saveVideo(file,token,title);
+        PublishActionResponse response=videoService.saveVideo(data,token,title);
         return response;
     }
 

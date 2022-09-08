@@ -21,11 +21,11 @@ public class FileApiController {
      * 上传视频到阿里云oss,返回视频与封面url,0位置为视频url,1位置为封面url
      */
     @PostMapping("videoUpload")
-    public String[] videoUpload(MultipartFile file) {
-        String videoUrl=fileService.uploadVideo(file);
+    public String[] videoUpload(MultipartFile data) {
+        String videoUrl=fileService.uploadVideo(data);
         MultipartFile cover=null;
         try {
-            cover = VideoHelper.fetchFrame(file);
+            cover = VideoHelper.fetchFrame(data);
         } catch (Exception e) {
             e.printStackTrace();
         }
