@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan("com.learn.douyin")
-@EnableFeignClients("com.learn.douyin")
+@EnableFeignClients(basePackages = "com.learn.douyin")
 @EnableDiscoveryClient
 public class ServiceVideoApplication {
     public static void main(String[] args) {

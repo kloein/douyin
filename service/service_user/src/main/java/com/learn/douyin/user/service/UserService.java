@@ -5,6 +5,9 @@ import com.learn.model.response.LoginResponse;
 import com.learn.model.response.RegisterResponse;
 import com.learn.model.response.UserMsgResponse;
 import com.learn.model.pojo.User;
+import com.learn.model.user.UserMsg;
+
+import java.util.List;
 
 public interface UserService extends IService<User> {
     /**
@@ -30,4 +33,11 @@ public interface UserService extends IService<User> {
      * @return
      */
     UserMsgResponse getUserMsg(Long userId, String token);
+
+    /**
+     * 根据用户id列表查询用户信息
+     * @param userIds
+     * @return
+     */
+    List<UserMsg> getUserMsgByIds(List<Long> userIds);
 }

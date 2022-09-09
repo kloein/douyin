@@ -4,17 +4,14 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 @Data
-@TableName("t_user")
-public class User {
+@TableName("t_like")
+public class Like {
     @TableId(value = "id",type = IdType.AUTO)
-    private long id;
-
-    @TableField("username")
-    private String username;
-
-    @TableField("password")
-    private String password;
-
+    private Long id;
+    @TableField("uid")
+    private Long uid;
+    @TableField("vid")
+    private Long vid;
     @TableLogic
     @TableField("is_deleted")
     private Integer isDeleted;

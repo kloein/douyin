@@ -1,18 +1,18 @@
-package com.learn.douyin.oss;
+package com.learn.douyin.like;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@SpringBootApplication
 @EnableFeignClients(basePackages = "com.learn.douyin")
 @EnableDiscoveryClient
 @ComponentScan("com.learn.douyin")
-public class ServiceOssApplication {
+public class ServiceLikeApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ServiceOssApplication.class, args);
+        SpringApplication.run(ServiceLikeApplication.class, args);
     }
 }

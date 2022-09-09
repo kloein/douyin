@@ -25,3 +25,7 @@ spring:
             uri: lb://service-oss
             predicates:
               - Path=/*/oss/**
+          - id: service-like
+            uri: lb://service-like
+            predicates:
+              - Path=/*/favorite/**

@@ -20,6 +20,7 @@ public class PublishController {
                                         @RequestParam("token") String token,
                                         @RequestParam("title") String title
     ) {
+        //TODO 改为异步MQ的方式
         PublishActionResponse response=videoService.saveVideo(data,token,title);
         return response;
     }

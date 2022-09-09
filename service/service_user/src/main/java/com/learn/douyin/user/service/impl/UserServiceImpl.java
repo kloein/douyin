@@ -16,6 +16,10 @@ import com.learn.model.user.UserMsg;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Override
@@ -87,15 +91,63 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new DouyinException(ResultCodeEnum.USER_NOT_EXIST);
         }
-        //4、TODO 查询关注信息
+        //4、返回
+        UserMsg userMsg=this.packageUserMsg(user);
+        return UserMsgResponse.ok(userMsg);
+    }
 
-        //5、构造返回值
-        UserMsg userMsg=new UserMsg();
-        userMsg.setId(userId);
+    @Override
+    public List<UserMsg> getUserMsgByIds(List<Long> userIds) {
+        //如果为空，sql语句会出错
+        if (userIds == null || userIds.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        //List<User> users = baseMapper.selectBatchIds(userIds);这样如果含重复uid只会查询出一个 userIds.size()>=users.size()
+        //使用多线程查询
+        CountDownLatch countDownLatch = new CountDownLatch(userIds.size());
+        User[] userArr=new User[userIds.size()];
+        for (int i = 0; i < userIds.size(); i++) {
+            final Long userId=userIds.get(i);
+            final int index=i;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        User user = baseMapper.selectById(userId);
+                        userArr[index]=user;
+                    }finally {
+                        countDownLatch.countDown();
+                    }
+                }
+            }).run();
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //转为List
+        List<User> users=new ArrayList<>(userArr.length);
+        for (int i = 0; i < userArr.length; i++) {
+            users.add(userArr[i]);
+        }
+        List<UserMsg> userMsgs=new ArrayList<>(users.size());
+        for (User user : users) {
+            UserMsg userMsg = this.packageUserMsg(user);
+            userMsgs.add(userMsg);
+        }
+        return userMsgs;
+    }
+
+    public UserMsg packageUserMsg(User user) {
+        UserMsg userMsg = new UserMsg();
+        userMsg.setId(user.getId());
         userMsg.setUsername(user.getUsername());
+        //TODO 查询关注信息
         userMsg.setFollowCount(0L);
         userMsg.setFollowerCount(0L);
         userMsg.setFollow(false);
-        return UserMsgResponse.ok(userMsg);
+        return userMsg;
     }
 }

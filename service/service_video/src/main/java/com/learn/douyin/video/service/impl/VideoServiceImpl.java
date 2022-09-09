@@ -10,6 +10,9 @@ import com.learn.douyin.user.client.UserFeignClient;
 import com.learn.douyin.video.mapper.VideoMapper;
 import com.learn.douyin.video.service.VideoService;
 
+import com.learn.douyin.video.utils.VideoConstantPropertiesUtil;
+import com.learn.model.pojo.User;
+import com.learn.model.response.FeedResponse;
 import com.learn.model.response.PublishActionResponse;
 import com.learn.model.pojo.Video;
 import com.learn.model.response.PublishListResponse;
@@ -21,8 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements VideoService {
@@ -65,25 +67,84 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements
         List<Video> videos = baseMapper.selectList(wrapper);
         //3、查询用户信息
         UserMsg userMsg = userFeignClient.userMsg(userId, token).getUserMsg();
-        System.out.println(userFeignClient.userMsg(userId, token));
-        System.out.println(userMsg);
         //4、封装视频
-        List<VideoMsg> videoMsgList=this.packageVideo(videos,userMsg);
+        List<VideoMsg> videoMsgList=this.packageVideos(videos,userMsg);
         //5、构造返回值
         return PublishListResponse.ok(videoMsgList);
     }
 
-    private List<VideoMsg> packageVideo(List<Video> videos, UserMsg userMsg) {
+    @Override
+    public Map<String, Object> feedLatest(Long latestTime, String token) {
+        //1、选取最新的视频
+        QueryWrapper<Video> wrapper = new QueryWrapper<>();
+        if (latestTime != null) {
+            wrapper.ge("create_time",new Date(latestTime*1000));
+        }
+        wrapper.orderByDesc("create_time");
+        //从配置类中获取拉取的视频数
+        int feedVideoNum= VideoConstantPropertiesUtil.FEED_VIDEO_NUM;
+        wrapper.last("limit "+feedVideoNum);
+        List<Video> videos = baseMapper.selectList(wrapper);
+        //2、找出它们发布的最早时间
+        Date date=new Date();
+        if (videos.size() > 0) {
+            date=videos.get(videos.size()-1).getCreateTime();
+        }
+        //3、封装视频
+        List<VideoMsg> feedList=new ArrayList<>(videos.size());
+        for (Video video : videos) {
+            UserMsgResponse userMsgResponse = userFeignClient.userMsg(video.getUid(), token);
+            UserMsg userMsg = userMsgResponse.getUserMsg();
+            VideoMsg videoMsg = this.packageVideo(video, userMsg);
+            feedList.add(videoMsg);
+        }
+        //4、构造返回值
+        Map<String,Object> map=new HashMap<>();
+        map.put("feedList", feedList);
+        map.put("nextTime", date);
+        return map;
+    }
+
+    @Override
+    public List<VideoMsg> getVideoMsgsByIds(List<Long> videoIds) {
+        //如果为空，sql语句会出错
+        if (videoIds == null || videoIds.isEmpty()) {
+            return new ArrayList<VideoMsg>();
+        }
+        List<Video> videos = baseMapper.selectBatchIds(videoIds);
+        List<VideoMsg> videoMsgs=new ArrayList<>(videos.size());
+        List<Long> videoUserIds=new ArrayList<>(videos.size());
+        for (Video video : videos){
+            videoUserIds.add(video.getUid());
+        }
+        //批量查询各视频用户信息
+        List<UserMsg> userMsgs = userFeignClient.userList(videoUserIds);
+        for (int i=0;i<videos.size();i++) {
+            Video video=videos.get(i);
+            UserMsg userMsg = userMsgs.get(i);
+            VideoMsg videoMsg = this.packageVideo(video, userMsg);
+            videoMsgs.add(videoMsg);
+        }
+        return videoMsgs;
+    }
+
+    private VideoMsg packageVideo(Video video, UserMsg userMsg) {
+        VideoMsg videoMsg = new VideoMsg();
+        BeanUtils.copyProperties(video, videoMsg);
+        videoMsg.setUserMsg(userMsg);
+        //TODO
+        videoMsg.setFavoriteCount(0L);
+        videoMsg.setCommentCount(0L);
+        videoMsg.setIsFavorite(false);
+        return videoMsg;
+    }
+
+
+    private List<VideoMsg> packageVideos(List<Video> videos, UserMsg userMsg) {
         ArrayList<VideoMsg> videoMsgList = new ArrayList<>(videos.size());
         for (int i = 0; i < videos.size(); i++) {
-            VideoMsg videoMsg = new VideoMsg();
             Video video=videos.get(i);
-            BeanUtils.copyProperties(video, videoMsg);
-            videoMsg.setUserMsg(userMsg);
-            //TODO
-            videoMsg.setFavoriteCount(0L);
-            videoMsg.setCommentCount(0L);
-            videoMsg.setIsFavorite(false);
+            VideoMsg videoMsg = this.packageVideo(video, userMsg);
             videoMsgList.add(i, videoMsg);
         }
         return videoMsgList;

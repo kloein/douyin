@@ -31,7 +31,7 @@ public class TokenUtil {
             Jwts.parser().setSigningKey(tokenSignKey).parse(token);
             return true;
         }catch (Exception e){
-            return  false;
+            return false;
         }
     }
 
