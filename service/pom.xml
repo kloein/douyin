@@ -16,6 +16,7 @@
         <module>service_video</module>
         <module>service_oss</module>
         <module>service_like</module>
+        <module>service_comment</module>
     </modules>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

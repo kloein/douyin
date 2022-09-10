@@ -9,11 +9,11 @@ public enum LikeActionEnum {
 
     private Integer type;
 
-    LikeActionEnum(Integer type) {
-        this.type = type;
-    }
-
     public Integer getType() {
         return type;
+    }
+
+    LikeActionEnum(Integer type) {
+        this.type = type;
     }
 }

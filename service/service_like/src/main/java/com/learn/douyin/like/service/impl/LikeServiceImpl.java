@@ -60,7 +60,7 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
 
     @Override
     public List<VideoMsg> listLiked(Long userId, String token) {
-        //1、验证token TODO 使用aop
+        //1、验证token
         if (!TokenUtil.verify(token)) {
             throw new DouyinException(ResultCodeEnum.TOKEN_ERROR);
         }
