@@ -11,8 +11,9 @@ public enum ResultCodeEnum {
     PASSWORD_ERROR(204,"登录密码错误"),
     PARAM_MISSING(205,"参数不足"),
     TOKEN_ERROR(206,"token检验错误"),
-    FAVORITE_ACTION_TYPE_ERROR(207,"点赞类型错误"),
-    COMMENT_ACTION_TYPE_ERROR(208,"评论类型错误"),
+    FAVORITE_ACTION_TYPE_ERROR(207,"点赞操作类型错误"),
+    COMMENT_ACTION_TYPE_ERROR(208,"评论操作类型错误"),
+    FOLLOW_ACTION_TYPE_ERROR(209,"关注操作类型错误"),
     ;
 
     private Integer code;

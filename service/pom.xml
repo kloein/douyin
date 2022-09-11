@@ -17,6 +17,7 @@
         <module>service_oss</module>
         <module>service_like</module>
         <module>service_comment</module>
+        <module>service_follow</module>
     </modules>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

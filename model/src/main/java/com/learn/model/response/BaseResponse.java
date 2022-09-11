@@ -24,6 +24,7 @@ public class BaseResponse implements Serializable {
     public static BaseResponse fail() {
         BaseResponse response = new BaseResponse();
         response.setStatusCode(1);
+        response.setStatusMsg("出错啦QAQ");
         return response;
     }
 }
