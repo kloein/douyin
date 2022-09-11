@@ -39,8 +39,6 @@ public interface VideoService extends IService<Video> {
 
     /**
      * 根据id列表查询视频详细信息
-     * @param videoIds
-     * @return
      */
-    List<VideoMsg> getVideoMsgsByIds(List<Long> videoIds);
+    List<VideoMsg> getVideoMsgsByIds(List<Long> videoIds,String token);
 }

@@ -19,8 +19,8 @@ public class UserApiController {
 
     @ApiOperation("根据用户id批量获取用户信息")
     @GetMapping("userList")
-    public List<UserMsg> userList(@RequestParam("userIds")List<Long> userIds) {
-        List<UserMsg> userMsgs=userService.getUserMsgByIds(userIds);
+    public List<UserMsg> userList(@RequestParam("userIds")List<Long> userIds,@RequestParam("token")String token) {
+        List<UserMsg> userMsgs=userService.getUserMsgByIds(userIds,token);
         return userMsgs;
     }
 }

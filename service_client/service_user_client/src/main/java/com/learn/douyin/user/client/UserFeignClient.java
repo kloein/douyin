@@ -19,5 +19,5 @@ public interface UserFeignClient {
     public UserMsgResponse userMsg(@RequestParam("user_id")Long userId, @RequestParam("token")String token);
 
     @GetMapping("/douyin/api/user/userList")
-    public List<UserMsg> userList(@RequestParam("userIds")List<Long> userIds);
+    public List<UserMsg> userList(@RequestParam("userIds")List<Long> userIds,@RequestParam("token")String token);
 }

@@ -39,5 +39,5 @@ public interface UserService extends IService<User> {
      * @param userIds
      * @return
      */
-    List<UserMsg> getUserMsgByIds(List<Long> userIds);
+    List<UserMsg> getUserMsgByIds(List<Long> userIds,String token);
 }

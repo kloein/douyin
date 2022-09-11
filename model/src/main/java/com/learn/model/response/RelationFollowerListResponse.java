@@ -7,12 +7,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class RelationFollowerResponse extends BaseResponse{
+public class RelationFollowerListResponse extends BaseResponse{
     @JSONField(name = "user_list")
     private List<UserMsg> userMsgList;
 
-    public static RelationFollowerResponse ok(List<UserMsg> userMsgList) {
-        RelationFollowerResponse response = new RelationFollowerResponse();
+    public static RelationFollowerListResponse ok(List<UserMsg> userMsgList) {
+        RelationFollowerListResponse response = new RelationFollowerListResponse();
         response.setStatusCode(0);
         response.setUserMsgList(userMsgList);
         return response;

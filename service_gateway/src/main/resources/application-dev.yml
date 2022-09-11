@@ -33,3 +33,7 @@ spring:
             uri: lb://service-comment
             predicates:
               - Path=/*/comment/**
+          - id: service-follow
+            uri: lb://service-follow
+            predicates:
+              - Path=/*/relation/**

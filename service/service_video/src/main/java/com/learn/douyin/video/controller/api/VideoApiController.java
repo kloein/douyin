@@ -19,8 +19,8 @@ public class VideoApiController {
 
     @ApiOperation("根据id列表批量查询视频详细信息")
     @GetMapping("videoList")
-    public List<VideoMsg> videoList(@RequestParam("videoIds")List<Long> videoIds) {
-        List<VideoMsg> videoMsgs=videoService.getVideoMsgsByIds(videoIds);
+    public List<VideoMsg> videoList(@RequestParam("videoIds")List<Long> videoIds,@RequestParam("token")String token) {
+        List<VideoMsg> videoMsgs=videoService.getVideoMsgsByIds(videoIds,token);
         return videoMsgs;
     }
 }

@@ -38,7 +38,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return commentMsg;
     }
 
-    @CacheEvict(value = "comment",keyGenerator = "keyGenerator")
     @Override
     public void removeByIdWithCache(Long commentId) {
          baseMapper.deleteById(commentId);

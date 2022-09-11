@@ -5,6 +5,7 @@ import com.learn.model.pojo.Like;
 import com.learn.model.video.VideoMsg;
 
 import java.util.List;
+import java.util.Map;
 
 public interface LikeService extends IService<Like> {
     /**
@@ -23,4 +24,12 @@ public interface LikeService extends IService<Like> {
      * @return
      */
     List<VideoMsg> listLiked(Long userId, String token);
+
+    /**
+     * 获取视频点赞量以及用户是否点赞信息
+     * @param vid
+     * @param uid
+     * @return
+     */
+    Map<String, Object> getVideoFavoriteMsg(Long vid, Long uid);
 }

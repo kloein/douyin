@@ -2,6 +2,7 @@ package com.learn.douyin.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.learn.douyin.follow.client.FollowFeignClient;
 import com.learn.douyin.common.exception.DouyinException;
 import com.learn.douyin.common.exception.ResultCodeEnum;
 import com.learn.douyin.common.utils.MD5;
@@ -13,15 +14,20 @@ import com.learn.model.response.RegisterResponse;
 import com.learn.model.response.UserMsgResponse;
 import com.learn.model.pojo.User;
 import com.learn.model.user.UserMsg;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+    @Autowired
+    private FollowFeignClient followFeignClient;
+
     @Override
     public RegisterResponse registerUser(String username, String password) {
         //检验用户名与密码合法性
@@ -92,12 +98,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new DouyinException(ResultCodeEnum.USER_NOT_EXIST);
         }
         //4、返回
-        UserMsg userMsg=this.packageUserMsg(user);
+        Long thisUid=TokenUtil.getUserId(token);
+        UserMsg userMsg=this.packageUserMsg(user,thisUid);
         return UserMsgResponse.ok(userMsg);
     }
 
     @Override
-    public List<UserMsg> getUserMsgByIds(List<Long> userIds) {
+    public List<UserMsg> getUserMsgByIds(List<Long> userIds,String token) {
         //如果为空，sql语句会出错
         if (userIds == null || userIds.size() == 0) {
             return new ArrayList<>();
@@ -133,21 +140,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             users.add(userArr[i]);
         }
         List<UserMsg> userMsgs=new ArrayList<>(users.size());
-        for (User user : users) {
-            UserMsg userMsg = this.packageUserMsg(user);
-            userMsgs.add(userMsg);
+        Long thisUid=TokenUtil.getUserId(token);
+        final UserMsg[] userMsgsArr=new UserMsg[users.size()];
+        CountDownLatch countDownLatchUserMsg = new CountDownLatch(users.size());
+        //使用多线程查询用户信息
+        for (int i=0;i<users.size();i++) {
+            final int index=i;
+            final User user=users.get(i);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        UserMsg userMsg = packageUserMsg(user,thisUid);
+                        userMsgsArr[index]=userMsg;
+                    }finally {
+                        countDownLatchUserMsg.countDown();
+                    }
+                }
+            }).start();
+        }
+        try {
+            countDownLatchUserMsg.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //数组转化为list
+        for(int i=0;i<userMsgsArr.length;i++){
+            userMsgs.add(userMsgsArr[i]);
         }
         return userMsgs;
     }
 
-    public UserMsg packageUserMsg(User user) {
+    public UserMsg packageUserMsg(User user,Long thisUid) {
         UserMsg userMsg = new UserMsg();
         userMsg.setId(user.getId());
         userMsg.setUsername(user.getUsername());
-        //TODO 查询关注信息
-        userMsg.setFollowCount(0L);
-        userMsg.setFollowerCount(0L);
-        userMsg.setFollow(false);
+        Map<String, Object> map = followFeignClient.userFollowMsg(user.getId(), thisUid);
+        Integer followCnt= (Integer) map.get("followCnt");
+        Integer followerCnt= (Integer) map.get("followerCnt");
+        Boolean isFollow= (Boolean) map.get("isFollow");
+        userMsg.setFollowCount(followCnt);
+        userMsg.setFollowerCount(followerCnt);
+        userMsg.setFollow(isFollow);
         return userMsg;
     }
 }

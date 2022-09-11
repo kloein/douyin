@@ -1,5 +1,6 @@
 package com.learn.douyin.video.controller;
 
+import com.learn.douyin.common.utils.TokenUtil;
 import com.learn.douyin.video.service.VideoService;
 import com.learn.model.response.FeedResponse;
 import com.learn.model.video.VideoMsg;
@@ -21,7 +22,11 @@ public class FeedController {
 
     @ApiOperation("视频流接口")
     @GetMapping("/douyin/feed")
-    public FeedResponse feed(@RequestParam("latest_time")Long latestTime,@RequestParam("token") String token) {
+    public FeedResponse feed(@RequestParam(value = "latest_time",required = false)Long latestTime,
+                             @RequestParam(value = "token",required = false) String token) {
+        if (token == null) {//为游客用户创建临时token
+            token= TokenUtil.createToken(-1L, "visitor");
+        }
         Map<String,Object> resultMap=videoService.feedLatest(latestTime,token);
         List<VideoMsg> feedList= (List<VideoMsg>) resultMap.get("feedList");
         Date nextTime=(Date) resultMap.get("nextTime");

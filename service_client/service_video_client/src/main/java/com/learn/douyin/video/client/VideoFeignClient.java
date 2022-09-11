@@ -12,5 +12,5 @@ import java.util.List;
 @Repository
 public interface VideoFeignClient {
     @GetMapping("/douyin/api/publish/videoList")
-    public List<VideoMsg> videoList(@RequestParam("videoIds")List<Long> videoIds);
+    public List<VideoMsg> videoList(@RequestParam("videoIds")List<Long> videoIds,@RequestParam("token")String token);
 }

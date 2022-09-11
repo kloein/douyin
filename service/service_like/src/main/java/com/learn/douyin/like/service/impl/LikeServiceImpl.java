@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements LikeService {
@@ -73,7 +75,29 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
         for (Like like : likeList) {
             likeIdsList.add(like.getVid());
         }
-        List<VideoMsg> videoMsgList = videoFeignClient.videoList(likeIdsList);
+        List<VideoMsg> videoMsgList = videoFeignClient.videoList(likeIdsList,token);
         return videoMsgList;
+    }
+
+    @Override
+    public Map<String, Object> getVideoFavoriteMsg(Long vid, Long uid) {
+        Map<String,Object> map=new HashMap<>();
+        //1、获取视频点赞量
+        Integer likeCnt = this.getVideoLikeCnt(vid);
+        map.put("likeCnt", likeCnt);
+        //2、获取用户是否已经点赞
+        QueryWrapper<Like> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        wrapper.eq("vid", vid);
+        Integer isLike = baseMapper.selectCount(wrapper);
+        map.put("isLike", isLike>=1?true:false);
+        return map;
+    }
+
+    private Integer getVideoLikeCnt(Long vid) {//todo redis
+        QueryWrapper<Like> wrapper = new QueryWrapper<>();
+        wrapper.eq("vid", vid);
+        Integer likeCnt = baseMapper.selectCount(wrapper);
+        return likeCnt;
     }
 }
