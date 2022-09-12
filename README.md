@@ -60,6 +60,8 @@ CREATE TABLE `t_video`(
 本项目使用nacos作为微服务的注册中心，使用版本为1.1.4
 ## 2.4、阿里云oss
 本项目采用阿里云oss为视频以及封面存储提供服务，请配置你的阿里云oss
+## 2.5、客户端
+客户端以及接口信息请见[抖音项目（青训营）](https://bytedance.feishu.cn/docx/doxcnbgkMy2J0Y3E6ihqrvtHXPg)
 
 # 3、使用技术
 ## 3.1、简介
