@@ -20,8 +20,15 @@ public class PublishController {
                                         @RequestParam("token") String token,
                                         @RequestParam("title") String title
     ) {
-        //TODO 改为异步MQ的方式
-        PublishActionResponse response=videoService.saveVideo(data,token,title);
+        //TODO 改为异步的方式
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //使用多线程异步上传视频
+                videoService.saveVideo(data, token, title);
+            }
+        }).start();
+        PublishActionResponse response=PublishActionResponse.ok();
         return response;
     }
 

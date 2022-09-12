@@ -30,4 +30,11 @@ public interface CommentService extends IService<Comment> {
      * @return
      */
     List<CommentMsg> getVideoCommentMsgs(String token, Long vid);
+
+    /**
+     * 根据视频id获取它的评论数
+     * @param vid
+     * @return
+     */
+    Integer getVideoCommentCnt(Long vid);
 }

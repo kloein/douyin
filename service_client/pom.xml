@@ -17,6 +17,7 @@
         <module>service_video_client</module>
         <module>service_follow_client</module>
         <module>service_like_client</module>
+        <module>service_comment_client</module>
     </modules>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

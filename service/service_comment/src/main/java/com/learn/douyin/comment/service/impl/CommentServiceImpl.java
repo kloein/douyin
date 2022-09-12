@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Autowired
     private UserFeignClient userFeignClient;
 
+    @CacheEvict(value = "commentCnt",keyGenerator = "keyGenerator")
     @Override
     public CommentMsg comment(Long vid, String commentContext,String token) {
         //插入
@@ -38,6 +40,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return commentMsg;
     }
 
+    @CacheEvict(value = "commentCnt",keyGenerator = "keyGenerator")
     @Override
     public void removeByIdWithCache(Long commentId) {
          baseMapper.deleteById(commentId);
@@ -53,6 +56,15 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             commentMsgList.add(this.packageComment(comment,token));
         });
         return commentMsgList;
+    }
+
+    @Cacheable(value = "commentCnt",keyGenerator = "keyGenerator")
+    @Override
+    public Integer getVideoCommentCnt(Long vid) {
+        QueryWrapper<Comment> wrapper = new QueryWrapper<>();
+        wrapper.eq("vid", vid);
+        Integer commentCnt = baseMapper.selectCount(wrapper);
+        return commentCnt;
     }
 
     public CommentMsg packageComment(Comment comment,String token) {

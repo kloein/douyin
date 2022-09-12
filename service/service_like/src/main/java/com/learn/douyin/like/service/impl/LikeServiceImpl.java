@@ -6,12 +6,15 @@ import com.learn.douyin.common.exception.DouyinException;
 import com.learn.douyin.common.exception.ResultCodeEnum;
 import com.learn.douyin.common.utils.TokenUtil;
 import com.learn.douyin.like.mapper.LikeMapper;
+import com.learn.douyin.like.service.LikeCntService;
 import com.learn.douyin.like.service.LikeService;
 import com.learn.douyin.video.client.VideoFeignClient;
 import com.learn.model.enums.LikeActionEnum;
 import com.learn.model.pojo.Like;
 import com.learn.model.video.VideoMsg;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +26,10 @@ import java.util.Map;
 public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements LikeService {
     @Autowired
     private VideoFeignClient videoFeignClient;
+    @Autowired
+    private LikeCntService likeCntService;
+
+    @CacheEvict(value = "likeCnt",keyGenerator ="likeKeyGenerator")
     @Override
     public void action(Long userId, String token, Long vid, Integer actionType) {
         //1、验证token
@@ -83,7 +90,7 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
     public Map<String, Object> getVideoFavoriteMsg(Long vid, Long uid) {
         Map<String,Object> map=new HashMap<>();
         //1、获取视频点赞量
-        Integer likeCnt = this.getVideoLikeCnt(vid);
+        Integer likeCnt = likeCntService.getVideoLikeCnt(vid);
         map.put("likeCnt", likeCnt);
         //2、获取用户是否已经点赞
         QueryWrapper<Like> wrapper = new QueryWrapper<>();
@@ -92,12 +99,5 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
         Integer isLike = baseMapper.selectCount(wrapper);
         map.put("isLike", isLike>=1?true:false);
         return map;
-    }
-
-    private Integer getVideoLikeCnt(Long vid) {//todo redis
-        QueryWrapper<Like> wrapper = new QueryWrapper<>();
-        wrapper.eq("vid", vid);
-        Integer likeCnt = baseMapper.selectCount(wrapper);
-        return likeCnt;
     }
 }

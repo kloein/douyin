@@ -35,9 +35,31 @@ public class RedisConfig {
             public Object generate(Object target, Method method, Object... params) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(target.getClass().getName());
-                sb.append(method.getName());
+                //sb.append(method.getName());
                 for (Object obj : params) {
                     sb.append(obj.toString());
+                }
+                return sb.toString();
+            }
+        };
+    }
+
+    @Bean
+    public KeyGenerator likeKeyGenerator() {
+        return new KeyGenerator() {
+            @Override
+            public Object generate(Object target, Method method, Object... params) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("like");
+                //sb.append(method.getName());
+                //获取vid的值
+                //1、在getVideoLikeCnt中
+                if (params.length == 1) {
+                    sb.append(params[0].toString());
+                }
+                //2、在action中
+                if (params.length == 4) {
+                    sb.append(params[2].toString());
                 }
                 return sb.toString();
             }

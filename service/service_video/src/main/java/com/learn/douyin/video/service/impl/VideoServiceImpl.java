@@ -2,6 +2,7 @@ package com.learn.douyin.video.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.learn.douyin.comment.client.CommentFeignClient;
 import com.learn.douyin.common.exception.DouyinException;
 import com.learn.douyin.common.exception.ResultCodeEnum;
 import com.learn.douyin.common.utils.TokenUtil;
@@ -37,6 +38,8 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements
     private UserFeignClient userFeignClient;
     @Autowired
     private LikeFeignClient likeFeignClient;
+    @Autowired
+    private CommentFeignClient commentFeignClient;
     @Override
     public PublishActionResponse saveVideo(MultipartFile file, String token, String title) {
         //1、验证token
@@ -101,13 +104,36 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements
         //3、封装视频
         List<VideoMsg> feedList=new ArrayList<>(videos.size());
         Long uid=TokenUtil.getUserId(token);
-        for (Video video : videos) {
-            UserMsgResponse userMsgResponse = userFeignClient.userMsg(video.getUid(), token);
-            UserMsg userMsg = userMsgResponse.getUserMsg();
-            VideoMsg videoMsg = this.packageVideo(video, userMsg,uid);
-            feedList.add(videoMsg);
+        final VideoMsg[] videoMsgsArr=new VideoMsg[videos.size()];
+        CountDownLatch countDownLatch = new CountDownLatch(videos.size());
+
+        for (int i=0;i<videos.size();i++) {
+            final int index=i;
+            final Video video=videos.get(index);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        UserMsgResponse userMsgResponse = userFeignClient.userMsg(video.getUid(), token);
+                        UserMsg userMsg = userMsgResponse.getUserMsg();
+                        VideoMsg videoMsg = packageVideo(video, userMsg,uid);
+                        videoMsgsArr[index]=videoMsg;
+                    }finally {
+                        countDownLatch.countDown();
+                    }
+                }
+            }).start();
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         //4、构造返回值
+        //将数组转为list
+        for (int i = 0; i < videoMsgsArr.length; i++) {
+            feedList.add(videoMsgsArr[i]);
+        }
         Map<String,Object> map=new HashMap<>();
         map.put("feedList", feedList);
         map.put("nextTime", date);
@@ -164,9 +190,10 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements
         VideoMsg videoMsg = new VideoMsg();
         BeanUtils.copyProperties(video, videoMsg);
         videoMsg.setUserMsg(userMsg);
-        //TODO
-        videoMsg.setCommentCount(0L);
-
+        //获取评论数
+        Integer commentCnt = commentFeignClient.getVideoCommentCnt(video.getId());
+        videoMsg.setCommentCount(commentCnt.longValue());
+        //获取点赞信息
         Map<String, Object> map = likeFeignClient.getVideoFavoriteMsg(video.getId(), uid);
         Integer favoriteCount= (Integer) map.get("likeCnt");
         Boolean isLike= (Boolean) map.get("isLike");
