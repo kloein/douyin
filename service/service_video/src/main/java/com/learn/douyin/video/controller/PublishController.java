@@ -20,7 +20,6 @@ public class PublishController {
                                         @RequestParam("token") String token,
                                         @RequestParam("title") String title
     ) {
-        //TODO 改为异步的方式
         new Thread(new Runnable() {
             @Override
             public void run() {
