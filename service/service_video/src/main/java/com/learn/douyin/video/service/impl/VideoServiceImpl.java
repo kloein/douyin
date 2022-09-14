@@ -23,15 +23,19 @@ import com.learn.model.user.UserMsg;
 import com.learn.model.video.VideoMsg;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 @Service
 public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements VideoService {
-
+    @Autowired
+    @Qualifier("feedExecutor")
+    private Executor executor;
     @Autowired
     private OssFeignClient ossFeignClient;
     @Autowired
@@ -110,7 +114,7 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements
         for (int i=0;i<videos.size();i++) {
             final int index=i;
             final Video video=videos.get(index);
-            new Thread(new Runnable() {
+            executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -122,7 +126,20 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, Video> implements
                         countDownLatch.countDown();
                     }
                 }
-            }).start();
+            });
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        UserMsgResponse userMsgResponse = userFeignClient.userMsg(video.getUid(), token);
+//                        UserMsg userMsg = userMsgResponse.getUserMsg();
+//                        VideoMsg videoMsg = packageVideo(video, userMsg,uid);
+//                        videoMsgsArr[index]=videoMsg;
+//                    }finally {
+//                        countDownLatch.countDown();
+//                    }
+//                }
+//            }).start();
         }
         try {
             countDownLatch.await();
