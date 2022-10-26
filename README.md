@@ -18,6 +18,7 @@ CREATE TABLE `t_user`(
 	`create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `is_deleted` TINYINT(3) NOT NULL DEFAULT '0' COMMENT '逻辑删除(1:已删除，0:未删除)'
 );
+ALTER TABLE `t_user` ADD UNIQUE(`USERNAME`);
 
 CREATE TABLE `t_like`(
 	`id` bigint(20) PRIMARY KEY AUTO_INCREMENT COMMENT '编号',

@@ -15,6 +15,7 @@ import com.learn.model.response.UserMsgResponse;
 import com.learn.model.pojo.User;
 import com.learn.model.user.UserMsg;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -47,8 +48,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String passwordMD5= MD5.encrypt(password);
         user.setUsername(username);
         user.setPassword(passwordMD5);
-        //插入
-        baseMapper.insert(user);
+        //插入,username加了唯一主键，防止并发注册相同名字
+        try {
+            baseMapper.insert(user);
+        } catch (DuplicateKeyException e) {
+            throw new DouyinException(ResultCodeEnum.USERNAME_HAS_EXIST);
+        }
         //构造返回值
         user=baseMapper.selectOne(wrapper);//获取id
         Long userId=user.getId();
